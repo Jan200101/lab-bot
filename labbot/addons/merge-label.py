@@ -9,9 +9,9 @@ relation_keywords = [
 relation_distance = 2
 
 state_label = {
-    "opened": "Code-Review",
-    "merged": "Testing",
     "closed": "In Progress",
+    "opened": "C-R Bestanden",
+    "merged": "Testing",
 }
 async def merge_request_hook(event, gl, *args, **kwargs):
     state = event.object_attributes["state"]
