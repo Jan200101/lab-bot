@@ -34,6 +34,11 @@ setuptools.setup(
     license="MIT",
     install_requires=requirements,
     include_package_data=True,
+    package_data={
+        "labbot": [
+            "dashboard/*.html"
+        ]
+    },
     classifiers=[
         "Development Status :: 3 - Alpha",
 
