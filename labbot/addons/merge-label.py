@@ -1,21 +1,33 @@
+import logging
 import os
 import re
 
+log = logging.getLogger("labbot.addon.merge_label")
+
 title_regex = r"^(?:#|)(\d+)\s*"
 word_regex = r"^#(\d+)$"
-relation_keywords = [
-    "related"
-]
-relation_distance = 2
 
-state_label = {
-    "closed": "In Progress",
-    "opened": "C-R Bestanden",
-    "merged": "Testing",
-}
 async def merge_request_hook(event, gl, *args, **kwargs):
     state = event.object_attributes["state"]
     related_issues = []
+
+    conf = data.read_data()
+    relation_keywords = conf["relation_keywords"]
+    relation_distance = conf["relation_distance"]
+    state_label = conf["state_label"]
+
+    all_labels = list(state_label.values())
+
+    try:
+        label = state_label[state]
+        if label in all_labels:
+            all_labels.remove(label)
+
+        remove_labels = ",".join(all_labels)
+
+    except KeyError:
+        # unknown state
+        pass
 
     match = re.search(title_regex, event.object_attributes["title"])
     if match:
@@ -45,29 +57,31 @@ async def merge_request_hook(event, gl, *args, **kwargs):
             except ValueError:
                 pass
 
+    related_string = ", ".join(related_issues)
+    log.debug(f"Giving {label} to {related_string}")
     for issue in related_issues:
         if not issue: continue
 
         base_url = f"/projects/{event.project_id}/issues/{issue}"
 
-        delete_labels = list(state_label.values())
-
-        try:
-            label = state_label[state]
-            if label in delete_labels:
-                delete_labels.remove(label)
-
-            remove_labels = ",".join(delete_labels)
-
-            await gl.put(base_url, data={
-                "add_labels": label,
-                "remove_labels": remove_labels,
-            })
-
-        except KeyError:
-            # unknown state
-            pass
+        await gl.put(base_url, data={
+            "add_labels": label,
+            "remove_labels": remove_labels,
+        })
 
 def setup(bot):
+    global data
+    data = bot.get_data_container("merge-label", {
+            "relation_keywords": [
+                "related"
+            ],
+            "relation_distance": 2,
+
+            "state_label": {
+                "closed": "In Progress",
+                "opened": "Code-Review",
+                "merged": "C-R Bestanden",
+            }
+        })
+
     bot.register(merge_request_hook, "Merge Request Hook")
-    pass
