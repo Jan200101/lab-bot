@@ -6,11 +6,13 @@ import logging
 import jinja2
 import aiohttp_jinja2
 from cryptography import fernet
-from gidgetlab.aiohttp import GitLabBot
 import importlib.resources
 from importlib import import_module
 import json
+from typing import Dict, Any
+from pathlib import Path
 
+from gidgetlab.aiohttp import GitLabBot # type: ignore
 from labbot.config import instance_config_dir
 from labbot.data import Data
 
@@ -24,22 +26,22 @@ class Bot:
 
         self.name = name
         self.secret = kwargs.get("secret", "")
-        self.addons = {}
-        self.configs = {}
+        self.addons: Dict[str, Any] = {}
+        self.configs: Dict[str, Any] = {}
 
         self.instance = GitLabBot(name, **kwargs)
         self.instance.app.router.add_get("/dashboard", self.dashboard_handler)
         self.instance.app.router.add_get("/dashboard/login", self.dashboard_login_handler)
-        self.instance.app.router.add_post("/dashboard/writer", self.dashboard_writer_handler)
+        #self.instance.app.router.add_post("/dashboard/writer", self.dashboard_writer_handler)
 
         dashboard_dir = importlib.resources.path("labbot", "dashboard")
         aiohttp_jinja2.setup(
             self.instance.app,
             context_processors=[self.bot_processor],
-            loader=jinja2.FileSystemLoader(dashboard_dir)
+            loader=jinja2.FileSystemLoader(str(dashboard_dir))
         )
 
-        addons_dir = importlib.resources.path("labbot", "addons")
+        addons_dir = Path(str(importlib.resources.path("labbot", "addons")))
 
         for addon in addons_dir.iterdir():
             if addon.is_file() and addon.name.endswith(".py"):
@@ -80,13 +82,6 @@ class Bot:
         Return 'Bot OK'
         """
         return {}
-
-    async def dashboard_writer_handler(self, request: web.Request) -> dict:
-        """Handler to check the health of the bot
-
-        Return 'Bot OK'
-        """
-        return "Bot OK"
 
     def get_data_container(self, *args, **kwargs) -> Data:
         instance_dir = instance_config_dir(self.name)

@@ -29,7 +29,6 @@ setuptools.setup(
     url="",
     packages=[
         "labbot",
-        "labbot.addons"
     ],
     license="MIT",
     install_requires=requirements,

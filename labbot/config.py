@@ -1,9 +1,9 @@
 import os
 import json
-from appdirs import user_config_dir
+from appdirs import user_config_dir  # type: ignore
 
 def config_dir() -> str:
-    path = user_config_dir("labbot")
+    path: str = user_config_dir("labbot")
     os.makedirs(path, exist_ok=True)
 
     return path
