@@ -32,5 +32,5 @@ async def merge_label_hook(event, gl, *args, **kwargs):
             log.debug(f"Cannot merge !{iid} because of its merge_statuc `{merge_status}`")
 
 def setup(bot):
-    bot.register(merge_label_hook, "Merge Request Hook")
+    bot.register_merge_hook(merge_label_hook)
     pass

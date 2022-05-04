@@ -1,6 +1,6 @@
 import os
 import json
-from typing import List
+from typing import List, Dict, Any
 from appdirs import user_config_dir  # type: ignore
 
 CONFIG_FILE = "config.json"
@@ -35,7 +35,7 @@ def write_instance_config(name: str, data: dict) -> None:
     if data != read_instance_config(name):
         raise ValueError("Config could not be saved properly")
 
-def read_instance_config(name: str) -> dict:
+def read_instance_config(name: str) -> Dict[str, Any]:
     conf_path = os.path.join(instance_config_dir(name), CONFIG_FILE)
 
     try:

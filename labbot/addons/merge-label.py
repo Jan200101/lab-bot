@@ -77,6 +77,5 @@ async def merge_label_hook(event, gl, *args, **kwargs):
             # unknown state
             pass
 
-def setup(bot):
-    bot.register(merge_label_hook, "Merge Request Hook")
-    pass
+def setup(bot) -> None:
+    bot.register_merge_hook(merge_label_hook)

@@ -2,6 +2,7 @@ import click
 import logging
 from typing import List
 from importlib import import_module
+import json
 
 import labbot.bot
 import labbot.config
@@ -19,7 +20,7 @@ def main():
 @main.command(help="Create a new instance")
 @click.option("--name", prompt=True, help="Name the instance will be given")
 @click.option("--access_token", prompt="Access Token for the Bot account", hide_input=True, help="Access Token to interact with the API")
-@click.option("--secret", prompt="Webhook Secret (can be empty)", default="", help="Secret to receive webhook requests (can be empty)")
+@click.option("--secret", prompt="Webhook Secret (optional)", default="", help="Secret to receive webhook requests (optional)")
 def setup(**data):
     instance_name = data.pop("name", "").replace(" ", "_").lower()
     data["addons"] = DEFAULT_ADDONS
@@ -33,11 +34,15 @@ def setup(**data):
 
 @main.command(help="Configure an existing instance")
 @click.argument('name')
-@click.option("--access_token", required=False)
-@click.option("--secret", required=False)
+@click.option("--access_token", required=False, help="Access Token to interact with the API")
+@click.option("--secret", required=False, help="Secret to receive webhook requests (can be empty)")
+@click.option("--addons", required=False, help="List of addons to load")
+@click.option("--addon_path", required=False, help="Path to load custom addons from")
+@click.option("--print", is_flag=True, required=False, help="Print the current config with redacted values")
 def config(name, **data):
 
     data = {k:v for k,v in data.items() if v}
+    print_config = data.pop("print", False)
 
     conf = labbot.config.read_instance_config(name)
     if conf:
@@ -45,8 +50,13 @@ def config(name, **data):
             conf.update(data)
             labbot.config.write_instance_config(name, conf)
             click.echo("configured")
-        else:
-            click.echo(f"nothing to change")
+        elif not print_config:
+            click.echo("run with `--help` to show usage")
+
+        if print_config:
+            conf["access_token"] = "************"
+            conf["secret"] = "******"
+            click.echo(json.dumps(conf, indent=4))
     else:
         click.echo(f"{name} is not an instance")
     pass
@@ -56,7 +66,7 @@ def config(name, **data):
 @click.option("--port", default=8080, show_default=True, help="change the webhook port")
 @click.option("--debug", is_flag=True, default=False, help="enable debug logging")
 @click.argument('name')
-def run(name, port, debug: bool):
+def run(name, port: str, debug: bool):
     conf = labbot.config.read_instance_config(name)
 
     if not conf:
