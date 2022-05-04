@@ -8,6 +8,9 @@ def init(level: int) -> None:
     aiohttp_logger = logging.getLogger("aiohttp")
     aiohttp_logger.setLevel(logging.WARNING)
 
+    asyncio_logger = logging.getLogger("asyncio")
+    asyncio_logger.setLevel(logging.WARNING)
+
     formatter = logging.Formatter(
         "[{asctime}] [{levelname}] {name}: {message}", datefmt="%Y-%m-%d %H:%M:%S", style="{"
     )

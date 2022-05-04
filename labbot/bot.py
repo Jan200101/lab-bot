@@ -52,4 +52,4 @@ class Bot:
 
     def run(self, *args, **kwargs) -> None:
         log.info(f"Started {self.name}")
-        self.instance.run(*args, **kwargs)
+        self.instance.run(*args, print=False, **kwargs)
