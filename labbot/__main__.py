@@ -36,7 +36,7 @@ def setup(**data):
 @click.argument('name')
 @click.option("--access_token", required=False, help="Access Token to interact with the API")
 @click.option("--secret", required=False, help="Secret to receive webhook requests (can be empty)")
-@click.option("--addons", required=False, help="List of addons to load")
+@click.option("--addons", multiple=True, required=False, help="List of addons to load")
 @click.option("--addon_path", required=False, help="Path to load custom addons from")
 @click.option("--print", is_flag=True, required=False, help="Print the current config with redacted values")
 def config(name, **data):

@@ -29,6 +29,8 @@ def write_instance_config(name: str, data: dict) -> None:
     os.makedirs(instance_path, exist_ok=True)
     conf_path = os.path.join(instance_path, CONFIG_FILE)
 
+    data = json.loads(json.dumps(data))
+
     with open(conf_path, "w") as file:
         json.dump(data, file)
 
