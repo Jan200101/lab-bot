@@ -45,6 +45,8 @@ class Bot:
             self.addons.append(addon)
         except ModuleNotFoundError:
             log.error(f"No addon named `{addon}`")
+        except Exception as e:
+            log.exception(e)
 
     def register(self, func, *args, **kwargs) -> None:
         self.instance.router.register(*args, **kwargs)(func)
