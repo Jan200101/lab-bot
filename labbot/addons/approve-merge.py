@@ -26,10 +26,9 @@ async def merge_label_hook(event, gl, *args, **kwargs):
 
     if approval_count >= required_approval_count:
         if merge_status == "can_be_merged":
-            print("test")
             await gl.put(merge_url)
         else:
-            log.debug(f"Cannot merge !{iid} because of its merge_statuc `{merge_status}`")
+            log.debug(f"Cannot merge !{iid} because of its merge_status `{merge_status}`")
 
 def setup(bot):
     bot.register_merge_hook(merge_label_hook)

@@ -19,9 +19,17 @@ relation_distance = 2
 
 state_label = {
     "closed": "In Progress",
-    "opened": "C-R Bestanden",
-    "merged": "Testing",
+    "opened": "Code-Review",
+    "merged": "C-R Bestanden",
 }
+
+# Extra labels that the bot will check for before acting
+act_labels = [
+    "Sprint",
+    "Testing",
+    "TestingFailed",
+]
+
 async def merge_label_hook(event, gl, *args, **kwargs):
     state = event.object_attributes["state"]
     related_issues = []
@@ -59,7 +67,18 @@ async def merge_label_hook(event, gl, *args, **kwargs):
 
         base_url = f"/projects/{event.project_id}/issues/{issue}"
 
-        delete_labels = list(state_label.values())
+        has_label = False
+        issue_data = await gl.getitem(base_url)
+        for label in issue_data["labels"]:
+            if label in act_labels or state_label.values():
+                has_label = True
+                break
+
+        if not has_label:
+            log.debug(f"Issue #{issue} does not have a relevant label")
+            continue
+
+        delete_labels = act_labels + list(state_label.values())
 
         try:
             label = state_label[state]
@@ -74,8 +93,7 @@ async def merge_label_hook(event, gl, *args, **kwargs):
             })
 
         except KeyError:
-            # unknown state
-            pass
+            log.exception("Unknown state")
 
 def setup(bot) -> None:
     bot.register_merge_hook(merge_label_hook)
