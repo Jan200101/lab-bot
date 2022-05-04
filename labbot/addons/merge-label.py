@@ -31,14 +31,19 @@ act_labels = [
 ]
 
 async def merge_label_hook(event, gl, *args, **kwargs):
+    title = event.object_attributes["title"]
+    description = event.object_attributes["description"]
     state = event.object_attributes["state"]
     related_issues = []
 
-    match = re.search(title_regex, event.object_attributes["title"])
+    if title.lower().startswith("draft"):
+        return
+
+    match = re.search(title_regex, title)
     if match:
         related_issues.append(match.group(1))
 
-    for line in event.object_attributes["description"].split("\\n"):
+    for line in description.split("\\n"):
         line = line.lower()
         line_list = line.split(" ")
 
