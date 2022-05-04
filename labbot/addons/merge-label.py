@@ -1,3 +1,8 @@
+"""
+automatically labels issues referenced in merge requests with
+specified labels.
+"""
+
 import os
 import re
 
@@ -13,7 +18,7 @@ state_label = {
     "opened": "C-R Bestanden",
     "merged": "Testing",
 }
-async def merge_request_hook(event, gl, *args, **kwargs):
+async def merge_label_hook(event, gl, *args, **kwargs):
     state = event.object_attributes["state"]
     related_issues = []
 
@@ -69,5 +74,5 @@ async def merge_request_hook(event, gl, *args, **kwargs):
             pass
 
 def setup(bot):
-    bot.register(merge_request_hook, "Merge Request Hook")
+    bot.register(merge_label_hook, "Merge Request Hook")
     pass

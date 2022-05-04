@@ -64,7 +64,8 @@ def run(name, port):
         )
 
     load_addons(instance, [
-            "merge-label"
+            "merge-label",
+            "approve-merge"
         ])
 
     click.echo(f"Started {name}")
