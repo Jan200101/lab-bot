@@ -5,6 +5,10 @@ specified labels.
 
 import os
 import re
+import logging
+
+log = logging.getLogger(__name__)
+
 
 title_regex = r"^(?:#|)(\d+)\s*"
 word_regex = r"^#(\d+)$"
