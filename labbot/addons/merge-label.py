@@ -7,28 +7,33 @@ import os
 import re
 import logging
 
+from labbot.config import Config
+
 log = logging.getLogger(__name__)
 
+config = Config(__name__)
 
-title_regex = r"^(?:#|)(\d+)\s*"
-word_regex = r"^#(\d+)$"
-relation_keywords = [
-    "related"
-]
-relation_distance = 2
+config.default_repo_data(
+    title_regex = r"^(?:#|)(\d+)\s*",
+    word_regex = r"^#(\d+)$",
 
-state_label = {
-    "closed": "In Progress",
-    "opened": "Code-Review",
-    "merged": "C-R Bestanden",
-}
+    relation_keywords = [
+        "related"
+    ],
+    relation_distance = 2,
 
-# Extra labels that the bot will check for before acting
-act_labels = [
-    "Sprint",
-    "Testing",
-    "TestingFailed",
-]
+    state_label = {
+        "closed": "In Progress",
+        "opened": "Code-Review",
+        "merged": "C-R Bestanden",
+    },
+
+    act_labels = [
+        "Sprint",
+        "Testing",
+        "TestingFailed",
+    ]
+)
 
 async def merge_label_hook(event, gl, *args, **kwargs):
     title = event.object_attributes["title"]

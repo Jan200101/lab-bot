@@ -5,6 +5,36 @@ from appdirs import user_config_dir  # type: ignore
 
 CONFIG_FILE = "config.json"
 
+class _ConfigDict:
+
+    def __init__(self, conf_name: str, **kwargs):
+        pass
+
+class Config:
+
+    def __init__(self, conf_name):
+        self.conf_name = conf_name
+
+        self.default_global_data = {}
+        self.default_group_data = {}
+        self.default_repo_data = {}
+
+
+    def group(self, id):
+        pass
+
+    def repo(self, id):
+        pass
+
+    def default_global(self, **kwargs):
+        self.default_global_data = kwargs
+
+    def default_group(self, **kwargs):
+        self.default_group_data = kwargs
+
+    def default_repo(self, **kwargs):
+        self.default_repo_data = kwargs
+
 def list_instances() -> List[str]:
     instances = []
     with os.scandir(config_dir()) as it:
