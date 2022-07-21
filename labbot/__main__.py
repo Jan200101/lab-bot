@@ -10,7 +10,8 @@ import labbot.logger
 
 DEFAULT_ADDONS = [
     "merge-label",
-    "approve-merge"
+    "approve-merge",
+    "merge-stable"
 ]
 
 @click.group()
