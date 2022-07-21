@@ -36,7 +36,7 @@ async def merge_label_hook(event, gl, *args, **kwargs):
     state = event.object_attributes["state"]
     related_issues = []
 
-    if title.lower().startswith("draft"):
+    if not description or title.lower().startswith("draft"):
         return
 
     match = re.search(title_regex, title)
@@ -75,7 +75,7 @@ async def merge_label_hook(event, gl, *args, **kwargs):
         has_label = False
         issue_data = await gl.getitem(base_url)
         for label in issue_data["labels"]:
-            if label in act_labels or state_label.values():
+            if label in act_labels or label in state_label.values():
                 has_label = True
                 break
 
@@ -91,7 +91,9 @@ async def merge_label_hook(event, gl, *args, **kwargs):
                 delete_labels.remove(label)
 
             remove_labels = ",".join(delete_labels)
-
+            log.debug(f"Applying {label} to {issue}")
+            if remove_labels:
+                log.debug(f"Removing `{remove_labels} from {issue}")
             await gl.put(base_url, data={
                 "add_labels": label,
                 "remove_labels": remove_labels,
