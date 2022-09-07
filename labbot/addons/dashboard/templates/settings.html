@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Settings</h1>
+  </div>
+
+  <table class="table table-sm table-hover table-striped">
+    <thead>
+      <tr>
+        <th>Key</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for k, v in bot.config.items() %}
+        <tr>
+          <td>{{k}}</td>
+          <td>{{v}}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

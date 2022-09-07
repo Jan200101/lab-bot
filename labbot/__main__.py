@@ -12,7 +12,8 @@ import labbot.logger
 DEFAULT_ADDONS = [
     "merge-label",
     "approve-merge",
-    "merge-stable"
+    "merge-stable",
+    "dashboard"
 ]
 
 @click.group()
@@ -52,13 +53,12 @@ def config(name, **data):
             conf.update(data)
             labbot.config.write_instance_config(name, conf)
             click.echo("configured")
-        elif not print_config:
-            click.echo("run with `--help` to show usage")
-
-        if print_config:
-            conf["access_token"] = "************"
-            conf["secret"] = "******"
+        elif print_config:
+            conf["access_token"] = (round(len(conf["access_token"]) / 4) * 4) * "*"
+            conf["secret"] = (round(len(conf["secret"]) / 4) * 4) * "*"
             click.echo(json.dumps(conf, indent=4))
+        else:
+            click.echo("run with `--help` to show usage")
     else:
         click.echo(f"{name} is not an instance")
     pass
@@ -82,11 +82,14 @@ def run(name, port: str, debug: bool):
 
     labbot.logger.init(logger_level)
 
+    access_token = conf.pop("access_token")
+    secret = conf.pop("secret", "")
+
     instance = labbot.bot.Bot(
             name=name,
             config=conf,
-            secret=conf["secret"],
-            access_token=conf["access_token"]
+            access_token=access_token,
+            secret=secret,
         )
 
     instance.run(

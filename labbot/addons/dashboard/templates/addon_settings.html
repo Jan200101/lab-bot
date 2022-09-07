@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Addon Settings</h1>
+  </div>
+
+  <div>
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+      <h4 class="h4">GLOBAL</h4>
+    </div>
+
+    <table class="table table-sm table-hover table-striped">
+      <thead>
+        <tr>
+          <th>Key</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for k, v in addon_settings.GLOBAL.items() %}
+          <tr>
+            <td>{{k}}</td>
+            <td>{{v}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div>
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+      <h4 class="h4">GROUP</h4>
+    </div>
+
+    {% for group_id, setting in addon_settings.GROUP.items() %}
+      <h6>{{ group_id }}</h6>
+      <table class="table table-sm table-hover table-striped">
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for k, v in setting.items() %}
+            <tr>
+              <td>{{k}}</td>
+              <td>{{v}}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endfor %}
+  </div>
+
+  <div>
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+      <h4 class="h4">PROJECT</h4>
+    </div>
+
+    {% for project_id, setting in addon_settings.PROJECT.items() %}
+      <h6>{{ project_id }}</h6>
+      <table class="table table-sm table-hover table-striped">
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for k, v in setting.items() %}
+            <tr>
+              <td>{{k}}</td>
+              <td>{{v}}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endfor %}
+  </div>
+{% endblock %}

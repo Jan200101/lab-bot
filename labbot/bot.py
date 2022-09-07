@@ -13,9 +13,9 @@ class Bot:
 
     def __init__(self, *args, **kwargs):
         self.name = kwargs.pop("name", "lab-bot")
-        self.access_token = kwargs.get("access_token")
-        self.secret = kwargs.get("secret", "")
-        self.config = kwargs.pop("config", labbot.config.read_instance_config(self.name))
+        self.access_token = kwargs.pop("access_token")
+        self.secret = kwargs.pop("secret")
+        self.config = kwargs.pop("config")
         self.config_addons = self.config.get("addons", [])
 
         self.addons = []
@@ -43,8 +43,6 @@ class Bot:
             import_module(f"{addon}").setup(self)
             log.info(f"Loaded {addon}")
             self.addons.append(addon)
-        except ModuleNotFoundError:
-            log.error(f"No addon named `{addon}`")
         except Exception as e:
             log.exception(e)
 

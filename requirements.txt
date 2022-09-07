@@ -1,3 +1,7 @@
 gidgetlab[aiohttp]
 appdirs
 click
+
+# dashboard
+jinja2
+aiohttp_jinja2
