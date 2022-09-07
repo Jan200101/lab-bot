@@ -3,6 +3,7 @@ import logging
 from typing import List
 from importlib import import_module
 import json
+import shutil
 
 import labbot.bot
 import labbot.config
@@ -97,6 +98,16 @@ def list_instances():
     print("Available Instances:")
     for ins in labbot.config.list_instances():
         print(f"- {ins}")
+
+@main.command(name="remove", help="Remove an instance")
+@click.argument('name')
+@click.option('--yes', is_flag=True, expose_value=False,
+              prompt='Are you sure you want to remove the instance?')
+def remove_instance(name):
+    try:
+        shutil.rmtree(labbot.config.instance_config_dir(name))
+    except FileNotFoundError:
+        print("Instance not found")
 
 if __name__ == "__main__":
     main()

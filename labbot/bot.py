@@ -79,6 +79,7 @@ class Bot:
         self.register(func, "Deployment Hook", *args, **kwargs)
 
 
-    def run(self, *args, **kwargs) -> None:
-        log.info(f"Started {self.name}")
-        self.instance.run(*args, print=False, **kwargs)
+    def run(self, **kwargs) -> None:
+        kwargs["print"] = False
+        log.info(f"Started {self.name} under :{kwargs['port']}")
+        self.instance.run(**kwargs)

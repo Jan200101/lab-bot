@@ -4,10 +4,16 @@ is reached.
 """
 import logging
 
+from labbot.config import Config
+
 log = logging.getLogger(__name__)
 
-required_approval_count = 2
+config = Config(__name__)
+config.set_global_data(
+    required_approval_count = 2
+)
 
+@config.config_decorator()
 async def merge_label_hook(event, gl, *args, **kwargs):
     title = event.object_attributes["title"]
     state = event.object_attributes["state"]
@@ -24,12 +30,12 @@ async def merge_label_hook(event, gl, *args, **kwargs):
 
     approval_count = len(data["approved_by"])
 
-    if approval_count >= required_approval_count:
+    if approval_count >= config["required_approval_count"]:
         if merge_status == "can_be_merged":
             await gl.put(merge_url)
         else:
             log.debug(f"Cannot merge !{iid} because of its merge_status `{merge_status}`")
 
 def setup(bot):
+    config.setup(__name__, bot.name)
     bot.register_merge_hook(merge_label_hook)
-    pass

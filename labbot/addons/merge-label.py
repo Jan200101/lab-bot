@@ -7,29 +7,34 @@ import os
 import re
 import logging
 
+from labbot.config import Config
+
 log = logging.getLogger(__name__)
 
+config = Config(__name__)
+config.set_global_data(
+    title_regex = r"^(?:#|)(\d+)\s*",
+    word_regex = r"^#(\d+)$",
 
-title_regex = r"^(?:#|)(\d+)\s*"
-word_regex = r"^#(\d+)$"
-relation_keywords = [
-    "related"
-]
-relation_distance = 2
+    relation_keywords = [
+        "related"
+    ],
+    relation_distance = 2,
 
-state_label = {
-    "closed": "In Progress",
-    "opened": "Code-Review",
-    "merged": "C-R Bestanden",
-}
+    state_label = {
+        "closed": "In Progress",
+        "opened": "Code-Review",
+        "merged": "C-R Bestanden",
+    },
 
-# Extra labels that the bot will check for before acting
-act_labels = [
-    "Sprint",
-    "Testing",
-    "TestingFailed",
-]
+    act_labels = [
+        "Sprint",
+        "Testing",
+        "TestingFailed",
+    ]
+)
 
+@config.config_decorator()
 async def merge_label_hook(event, gl, *args, **kwargs):
     title = event.object_attributes["title"]
     description = event.object_attributes["description"]
@@ -75,7 +80,7 @@ async def merge_label_hook(event, gl, *args, **kwargs):
         has_label = False
         issue_data = await gl.getitem(base_url)
         for label in issue_data["labels"]:
-            if label in act_labels or label in state_label.values():
+            if label in act_labels or label in config["state_label"].values():
                 has_label = True
                 break
 
@@ -83,10 +88,10 @@ async def merge_label_hook(event, gl, *args, **kwargs):
             log.debug(f"Issue #{issue} does not have a relevant label")
             continue
 
-        delete_labels = act_labels + list(state_label.values())
+        delete_labels = act_labels + list(config["state_label"].values())
 
         try:
-            label = state_label[state]
+            label = config["state_label"][state]
             if label in delete_labels:
                 delete_labels.remove(label)
 
@@ -103,4 +108,5 @@ async def merge_label_hook(event, gl, *args, **kwargs):
             log.exception("Unknown state")
 
 def setup(bot) -> None:
+    config.setup(__name__, bot.name)
     bot.register_merge_hook(merge_label_hook)
