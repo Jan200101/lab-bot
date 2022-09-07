@@ -5,3 +5,4 @@ click
 # dashboard
 jinja2
 aiohttp_jinja2
+itsdangerous

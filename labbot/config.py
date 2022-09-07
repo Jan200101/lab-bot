@@ -42,9 +42,10 @@ class Config:
             # write the hardcoded config data ontop of the loaded data
             self.settings["GLOBAL"].update(global_data)
 
-            repo = self.settings.pop("REPO")
-            if repo:
-                self.settings["PROJECT"] = repo
+            try:
+                self.settings["PROJECT"] = self.settings.pop("REPO")
+            except KeyError:
+                pass
         except (IOError, ValueError):
             pass
 

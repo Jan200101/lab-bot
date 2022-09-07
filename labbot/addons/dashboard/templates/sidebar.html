@@ -26,12 +26,14 @@
     </h6>
     <ul class="nav flex-column mb-2">
       {% for addon in bot.addons %}
-        <li class="nav-item">
-          <a class="nav-link" href="/settings/{{ addon }}">
-            <span data-feather="file-plus" class="align-text-bottom"></span>
-            {{ addon }}
-          </a>
-        </li>
+        {% if addon != "dashboard" %}
+          <li class="nav-item">
+            <a class="nav-link" href="/settings/{{ addon }}">
+              <span data-feather="file-plus" class="align-text-bottom"></span>
+              {{ addon }}
+            </a>
+          </li>
+        {% endif %}
       {% endfor %}
     </ul>
 
@@ -54,16 +56,7 @@
 <script>
   function getHealth()
   {
-    var href = window.location.href;
-    var osi = -2;
-    var nsi = -1;
-
-    while (nsi > osi)
-    {
-      osi = nsi;
-      nsi = href.indexOf("/", nsi+1);
-    }
-    href = href.slice(0, osi+1) + "health"
+    var href = window.location.origin + "/health"
     
     var xhttp = new XMLHttpRequest();
     xhttp.onload = function() {
