@@ -6,6 +6,7 @@ import logging
 
 import labbot
 import labbot.config
+import labbot.commands
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +27,7 @@ class Bot:
         if "addon_path" in self.config:
             self.addon_paths.append(self.config.get("addon_path"))
 
-        self.instance = GitLabBot(self.name, **kwargs)
+        self.instance = GitLabBot(self.name, access_token=self.access_token, secret=self.secret, **kwargs)
 
         for path in self.addon_paths:
             sys.path.insert(0, path)
@@ -37,9 +38,12 @@ class Bot:
         for path in self.addon_paths:
             sys.path.remove(path)
 
+        labbot.commands.commands.setup_hook(self)
+
 
     def load_addon(self, addon: str) -> None:
         try:
+            module = import_module(f"{addon}")
             import_module(f"{addon}").setup(self)
             log.info(f"Loaded {addon}")
             self.addons.append(addon)
@@ -56,6 +60,9 @@ class Bot:
         self.register(func, "Tag Push Hook", *args, **kwargs)
 
     def register_issue_hook(self, func, *args, **kwargs) -> None:
+        self.register(func, "Issue Hook", *args, **kwargs)
+
+    def register_comment_hook(self, func, *args, **kwargs) -> None:
         self.register(func, "Issue Hook", *args, **kwargs)
 
     def register_note_hook(self, func, *args, **kwargs) -> None:
