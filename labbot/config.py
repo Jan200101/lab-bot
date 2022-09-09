@@ -34,18 +34,14 @@ class Config:
         self.name = name
 
         try:
-            global_data = self.settings.get("GLOBAL", {})
-
-            self.settings = json.load(
+            settings = json.load(
                 open(os.path.join(instance_path, f"{conf_name}.json")))
 
-            # write the hardcoded config data ontop of the loaded data
-            self.settings["GLOBAL"].update(global_data)
-
-            try:
-                self.settings["PROJECT"] = self.settings.pop("REPO")
-            except KeyError:
-                pass
+            # allow the config on disk to overwrite existing config keys
+            # but keep new ones around
+            self.settings["GLOBAL"].update(settings.get("GLOBAL", {}))
+            self.settings["GROUP"].update(settings.get("GROUP", {}))
+            self.settings["PROJECT"].update(settings.get("PROJECT", {}))
         except (IOError, ValueError):
             pass
 
@@ -89,12 +85,15 @@ class Config:
         return decorator
 
     def set_global_data(self, **kwargs):
+        kwargs.update(self.settings["GLOBAL"])
         self.settings["GLOBAL"] = kwargs
 
     def set_group_data(self, group_id, **kwargs):
+        kwargs.update(self.settings["GROUP"][group_id])
         self.settings["GROUP"][group_id] = kwargs
 
     def set_project_data(self, project_id, **kwargs):
+        kwargs.update(self.settings["PROJECT"][project_id])
         self.settings["PROJECT"][project_id] = kwargs
 
 def list_instances() -> List[str]:
