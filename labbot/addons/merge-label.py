@@ -44,7 +44,7 @@ async def merge_label_hook(event, gl, *args, **kwargs):
     if not description or title.lower().startswith("draft"):
         return
 
-    match = re.search(title_regex, title)
+    match = re.search(config["title_regex"], title)
     if match:
         related_issues.append(match.group(1))
 
@@ -52,20 +52,20 @@ async def merge_label_hook(event, gl, *args, **kwargs):
         line = line.lower()
         line_list = line.split(" ")
 
-        for keyword in relation_keywords:
+        for keyword in config["relation_keywords"]:
             try:
                 keyword_index = line_list.index(keyword)
 
-                min_pos = keyword_index - relation_distance
+                min_pos = keyword_index - config["relation_distance"]
                 if min_pos < 0:
                     min_pos = 0
 
-                max_pos = keyword_index + relation_distance
+                max_pos = keyword_index + config["relation_distance"]
                 if max_pos >= len(line_list):
                     max_pos = len(line_list)-1
 
                 for word in line_list[min_pos:max_pos+1]:
-                    match = re.search(word_regex, word)
+                    match = re.search(config["word_regex"], word)
                     if match:
                         related_issues.append(match.group(1))
 
@@ -80,7 +80,7 @@ async def merge_label_hook(event, gl, *args, **kwargs):
         has_label = False
         issue_data = await gl.getitem(base_url)
         for label in issue_data["labels"]:
-            if label in act_labels or label in config["state_label"].values():
+            if label in config["act_labels"] or label in config["state_label"].values():
                 has_label = True
                 break
 
@@ -88,7 +88,7 @@ async def merge_label_hook(event, gl, *args, **kwargs):
             log.debug(f"Issue #{issue} does not have a relevant label")
             continue
 
-        delete_labels = act_labels + list(config["state_label"].values())
+        delete_labels = config["act_labels"] + list(config["state_label"].values())
 
         try:
             label = config["state_label"][state]
