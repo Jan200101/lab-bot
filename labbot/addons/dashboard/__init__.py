@@ -48,15 +48,9 @@ def check_auth():
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
-            full_kwargs = kwargs.copy()
-            full_kwargs.update(zip(func.__code__.co_varnames, args))
-            try:
-                request = full_kwargs["coro"]
-            except KeyError:
-                try:
-                    request = full_kwargs["args"]
-                except KeyError:
-                    request = full_kwargs["request"]
+            request = args[0]
+            if isinstance(request, Dashboard):
+                request = args[1]
 
             try:
                 session = request.cookies["session"]
@@ -78,15 +72,10 @@ def set_auth():
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
-            full_kwargs = kwargs.copy()
-            full_kwargs.update(zip(func.__code__.co_varnames, args))
-            try:
-                request = full_kwargs["coro"]
-            except KeyError:
-                try:
-                    request = full_kwargs["args"]
-                except KeyError:
-                    request = full_kwargs["request"]
+            request = args[0]
+            if isinstance(request, Dashboard):
+                request = args[1]
+
 
             if request.method == "POST":
                 data = await request.post()
@@ -130,18 +119,10 @@ class Dashboard:
             context_processors=[self.processor],
             loader=jinja2.FileSystemLoader(dashboard_dir))
 
-        self.pages = [
-            ["/",           self.dashboard],
-            ["/log",        self.log],
-            ["/settings",   self.settings],
-        ]
-
-        for addon in self.bot.addons:
-            self.pages.append([f"/settings/{addon}", self.addon_settings(addon)])
-
-        for page in self.pages:
-            endpoint, func = page
-            self.app.router.add_get(endpoint, func)
+        self.app.router.add_get("/", self.dashboard)
+        self.app.router.add_get("/log", self.log)
+        self.app.router.add_get("/settings", self.settings)
+        self.app.router.add_get("/settings/{addon}", self.addon_settings)
         self.app.router.add_get("/login", self.login)
         self.app.router.add_post("/login", self.login)
         self.app.router.add_get("/logout", self.logout)
@@ -161,16 +142,14 @@ class Dashboard:
     async def settings(self, request: aiohttp.web.Request) -> dict:
         return {}
 
-    def addon_settings(self, addon):
-        @check_auth()
-        @aiohttp_jinja2.template('addon_settings.html')
-        async def _settings(request: aiohttp.web.Request) -> dict:
-            c = Config(addon, self.bot.name)
-            return {
-                "addon_settings": c.settings
-            }
-
-        return _settings
+    @check_auth()
+    @aiohttp_jinja2.template('addon_settings.html')
+    def addon_settings(self, request: aiohttp.web.Request):
+        c = Config(request.match_info.get("addon", None), self.bot.name)
+        print(c.settings)
+        return {
+            "addon_settings": c.settings
+        }
 
     @set_auth()
     @aiohttp_jinja2.template('login.html')
@@ -187,6 +166,7 @@ class Dashboard:
         return resp 
 
     async def processor(self, request) -> dict:
+        print(self.bot.addons)
         return {
             "bot": {
                 "name": self.bot.name,
