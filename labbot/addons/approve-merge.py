@@ -34,7 +34,7 @@ async def merge_label_hook(event, gl, *args, **kwargs):
         if merge_status == "can_be_merged":
             await gl.put(merge_url)
         else:
-            log.debug(f"Cannot merge !{iid} because of its merge_status `{merge_status}`")
+            log.debug(f"Cannot merge !{iid}({event.project_id}) because of its merge_status `{merge_status}`")
 
 def setup(bot):
     config.setup(__name__, bot.name)

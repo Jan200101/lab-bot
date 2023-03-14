@@ -41,7 +41,7 @@ async def issue_update_hook(event, gl, *args, **kwargs):
 
     if branches:
         branch_str = ", ".join(branches.keys())
-        log.debug(f"`{branch_str}` are ready to be merged into stable")
+        log.debug(f"`{branch_str}`({event.project_id}) are ready to be merged into stable")
 
     merge_url = f"/projects/{event.project_id}/merge_requests"
     for branch, merge in branches.items():

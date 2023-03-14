@@ -79,13 +79,15 @@ async def merge_label_hook(event, gl, *args, **kwargs):
 
         has_label = False
         issue_data = await gl.getitem(base_url)
-        for label in issue_data["labels"]:
+        issue_labels = issue_data["labels"]
+        for label in issue_labels:
             if label in config["act_labels"] or label in config["state_label"].values():
                 has_label = True
                 break
 
         if not has_label:
-            log.debug(f"Issue #{issue} does not have a relevant label")
+            label_str = ", ".join(issue_labels)
+            log.debug(f"Issue #{issue}({event.project_id}) does not have a relevant label (has: '{label_str}')")
             continue
 
         delete_labels = config["act_labels"] + list(config["state_label"].values())
