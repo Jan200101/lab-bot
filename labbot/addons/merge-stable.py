@@ -51,8 +51,9 @@ async def issue_update_hook(event, gl, *args, **kwargs):
             "source_branch": branch,
             "target_branch": config["stable_branch"]
         }):
-            if merge_data["state"] == "opened":
-                merge_exists = True
+            # We have found a merge request, we cannot sanely re-merge again.
+            merge_exists = True
+            break
 
         if merge_exists:
             log.debug(f"merge for `{branch}` already exists")
