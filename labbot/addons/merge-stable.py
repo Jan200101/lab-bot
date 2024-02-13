@@ -45,23 +45,33 @@ async def issue_update_hook(event, gl, *args, **kwargs):
 
     merge_url = f"/projects/{event.project_id}/merge_requests"
     for branch, merge in branches.items():
-        merges_exists = 0
+        create_stable_merge = True
 
+        MAX_AVAIL_MERGES = 3
+        merges_exists = 0
         async for merge_data in gl.getiter(merge_url, params={
             "source_branch": branch,
             "target_branch": config["stable_branch"]
         }):
-            # We found a merge request, add it to the counter
-            merges_exists += 1
-            if merges_exists > 3:
+            if merge_data["state"] == "opened":
+                # we already have an open MR
+                create_stable_merge = False
                 break
 
-        if merges_exists > 3:
+            if merge_data["state"] != "merged":
+                # We found a merge request that has not been merged.
+                # Add it to the counter
+                merges_exists += 1
+
+            # Are there more than MAX_AVAIL_MERGES available merges?
+            # Stop creating new ones for gods sake
+            if merges_exists > MAX_AVAIL_MERGES:
+                create_stable_merge = False
+                break
+
+        if create_stable_merge:
             log.debug(f"merges for `{branch}` already exists, not opening more than 3")
         else:
-            if merges_exists:
-                log.debug(f"merge for `{branch}` already exists, opening a new one regardless")
-
             merge_string = ", ".join(merge)
             await gl.post(merge_url, data={
                 "source_branch": branch,
