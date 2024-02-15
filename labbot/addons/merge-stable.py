@@ -23,6 +23,9 @@ async def issue_update_hook(event, gl, *args, **kwargs):
     issue_url = f"/projects/{event.project_id}/issues/{issue_id}"
     issue_data = await gl.getitem(issue_url)
 
+    if issue_data["state"] != "opened":
+        log.debug(f"{issue_id} is closed, not opening merge request")
+        return
 
     branches = {}
     if config["merge_label"] in issue_data["labels"]:
