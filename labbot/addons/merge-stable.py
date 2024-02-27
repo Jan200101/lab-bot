@@ -72,7 +72,7 @@ async def issue_update_hook(event, gl, *args, **kwargs):
                 create_stable_merge = False
                 break
 
-        if create_stable_merge:
+        if not create_stable_merge:
             log.debug(f"merges for `{branch}` already exists, not opening more than 3")
         else:
             merge_string = ", ".join(merge)
